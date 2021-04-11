@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+	var length, width=18 //width is vertical, length is horizontal	
+	var difficulty, totalBombCount 
+	var data, gameboard //tables; data for backend, gameboard for frontend
+	var bombLocations = []
+	var areaR = [-1, -1, -1, 0, 1, 1, 1, 0] //all 8 surrounding squares check,
+	var areaC = [-1, 0, 1, 1, 1, 0, -1, -1] //starting from the top left square
+
+	function startGame(){
+		data = new Array(width)
+		for (var i=0; i<width; i++)
+			data[i] = new Array(length)
+		generateGrid()	
+		addBombs()
+		fillGrid()
+		debug()
+	}
+
+	function generateGrid(){
+		gameboard = document.getElementById("grid")
+		var value="<table style='border-collapse:collapse;border-style:inset'>"
+        for(var i = 0; i < width; i++) {
+            value+="<tr>"
+            for(var j = 0; j < length; j++) {
+                value+="<td id='"+i+"="+j+"'style='line-height:0px;padding:0px;border-style:inset;text-align:center'>"
+                value+="<input type='button' style='width:30px; height:30px; font-weight:bold' id='"+i+"-"+j+"' onmousedown=whichMouse(this,event)>"
+                value+="</td>"
+            }
+            value+="</tr>"
+        }
+        value+="</table>"
+        grid.innerHTML=value
+	}
+
+	//analyze what was clicked and what needs to occur when clicked
+	function whichMouse(button, event) {
+		var tmp = button.id
+		var r = parseInt(tmp.slice(0, 1))
+        var c = parseInt(tmp.slice(2))
+        if (event.shiftKey) {
+            var btn = document.getElementById(tmp)
+            if (document.getElementById(tmp).value == 'X') {
+                document.getElementById(tmp).value = ''
+            } else {
+                document.getElementById(tmp).value = 'X'
+            }
+        } else {
+            var val = data[r][c]
+            if (val==-1)
+            	endGame(-1)
+            else if (val==0)
+            	floodFill(r, c)
+            else
+            	revealValue(r, c)
+        } 
+	}
+
+	//randomly generate bombs based on diffuculty selected
+	function addBombs() {
+		totalBombCount = difficulty * length * 18
+		for(var i=0; i<totalBombCount; i++) {
+			var tmpR = Math.round(Math.random() * (17))
+            var tmpC = Math.round(Math.random() * (length-1))
+            if (data[tmpR][tmpC] == 0) {
+            	data[tmpR][tmpC] = -1
+            	bombLocations.add([tmpR][tmpC])
+            }
+            else i--
+		}
+	}
+
+	//when clicked on a bomb, all other bombs should be revealed as well
+	function revealBombs(){
+		var tmpR, tmpC
+        for (var i = 0; i < bombLocations.length; i++) {
+            tmpR = bombLocations[i][0]   
+            tmpC = bomgLocations[i][1]
+            var strB = tmpR +  "-" + tmpC   
+            document.getElementById(strB).value = 'X'
+        }   
+	}
+
+	function fillGrid(){
+		for (var r=0; r<width; r++) {
+			for (var c=0; c<length; c++) {
+				count = 0
+				for (var i=0; i<8; i++) {
+					tmpR = r+areaR[i]
+					tmpC = c+areaC[i]
+					if (isValidLocation(tmpR, tmpC) && data[tmpR][tmpC]==-1) 
+						count++
+				}
+				data[r][c] = count
+			}
+		}
+	}
+
+	//when clicked on 0, use floodFill to find all squares that must also be revealed
+	function floodFill(iR, iC) {
+		var queue = []
+		queue.push([iR, iC])
+		var next
+		while (queue.size > 0) { //check syntax for .isEmtpy
+			next = queue.shift()
+			for (var i=0; i<8; i++) {
+				tmpR = next[0]+areaR[i]
+				tmpC = next[1]+areaC[i]
+				if (isValidLocation(tmpR, tmpC)) {
+					if (data[tmpR][tmpC] == -2)
+						continue
+					else if (data[tmpR][tmpC] == 0)
+						queue.add([tmpR, tmpC]) //check syntax for .add
+					revealValue(tmpR, tmpC)
+					data[tmpR][tmpC] = -2
+				}
+			}
+		}
+	}
+
+	//reveals value of a specific location on the grid to the player
+	function revealValue(iR, iC) {
+		if (data[iR][iC] >= 0) {
+			var strB = iR +  "-" + iC
+			document.getElementById(strB).style.visibility = 'hidden'
+			if (data[iR][iC] > 0) {
+				strB = h + "=" + w
+            	document.getElementById(strG).innerHTML = game[h][w]
+			}
+		}
+	}
+
+	//check if desired location is within bounds 
+	function isValidLocation(iR, iC) {
+		return (iR>=0 && iR<width && iC>=0 && iC<length)
+	}
+
+	//determine how the game ends, and in each case, what should occur
+	function endGame(status) { //-1 is clicked on bomb, 0 is win
+		if (status==-1) { //clicked on a bomb
+			var tmpR, tmpC
+	        for (var i = 0; i < bombLocations.length; i++) {
+	            tmpR = bombLocations[i][0]   
+	            tmpC = bomgLocations[i][1]
+	            var strB = tmpR +  "-" + tmpC   
+	            document.getElementById(strB).value = 'X'
+	        }   
+	        alert("You Lost! :( Click OK to play again.")
+	        startGame()
+		} else { //won the game
+			alert("You Won! :) Click OK to play again.")
+			startGame()
+		}
+	}
+
+	//print out data value 
+	function debug() { 
+        var debug = document.getElementById("debug")
+        var debuginfo = ""
+        for (var i = 0; i < width; i++) {
+            for(var j = 0; j < length; j++) 
+                debuginfo+=data[i][j] + " "
+            debuginfo+="<br>"
+        }
+        debug.innerHTML = debuginfo
+    }
+
+</script>
+</head>
+
+<body>
+	<h1> MINESWEEPER </h1>
+	Grid Size: <input type="button" value="S" onclick="length=10"> <input type="button" value="M" onclick="length=15"> <input type="button" value="L" onclick="length=25"> <input type="button" value="XL" onclick="length=35"> 
+	Difficulty: <input type="button" value="1" onclick="difficulty=0.1"> <input type="button" value="2" onclick="difficulty=0.2"> <input type="button" value="3" onclick="difficulty=0.3"> <input type="button" value="4" onclick="difficulty=0.4">
+	<input type="button" value="CREATE!" onclick="startGame()">
+	<p> <div id="grid"></div> </p>
+</body>
+<div id="debug"></div>
+</html>
