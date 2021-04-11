@@ -2,7 +2,7 @@
 <html>
 <head>
 <script type="text/javascript">
-	var length, width=18 //width is vertical, length is horizontal	
+	var length, width //width is vertical, length is horizontal	
 	var difficulty, totalBombCount 
 	var data, gameboard //tables; data for backend, gameboard for frontend
 	var bombLocations = []
@@ -22,9 +22,9 @@
 	function generateGrid(){
 		gameboard = document.getElementById("grid")
 		var value="<table style='border-collapse:collapse;border-style:inset'>"
-        for(var i = 0; i < width; i++) {
+        for(var i = 1; i <= width; i++) { // index start from 1
             value+="<tr>"
-            for(var j = 0; j < length; j++) {
+            for(var j = 1; j <= length; j++) {
                 value+="<td id='"+i+"="+j+"'style='line-height:0px;padding:0px;border-style:inset;text-align:center'>"
                 value+="<input type='button' style='width:30px; height:30px; font-weight:bold' id='"+i+"-"+j+"' onmousedown=whichMouse(this,event)>"
                 value+="</td>"
@@ -172,10 +172,11 @@
 
 <body>
 	<h1> MINESWEEPER </h1>
-	Grid Size: <input type="button" value="S" onclick="length=10"> <input type="button" value="M" onclick="length=15"> <input type="button" value="L" onclick="length=25"> <input type="button" value="XL" onclick="length=35"> 
+	Grid Size: <input type="button" value="S" onclick="length=10"> <input type="button" value="M" onclick="length=15"> <input type="button" value="L" onclick="length=20"> <input type="button" value="XL" onclick="length=25"> 
 	Difficulty: <input type="button" value="1" onclick="difficulty=0.1"> <input type="button" value="2" onclick="difficulty=0.2"> <input type="button" value="3" onclick="difficulty=0.3"> <input type="button" value="4" onclick="difficulty=0.4">
 	<input type="button" value="CREATE!" onclick="startGame()">
 	<p> <div id="grid"></div> </p>
 </body>
+
 <div id="debug"></div>
 </html>
