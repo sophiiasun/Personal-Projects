@@ -3,12 +3,13 @@
 let lastRenderTime = 0
 let gameOver = false
 let SNAKE_LENGTH = 1
+let SCORE = 0
 const SNAKE_SPEED = 5 // two moves per second
 const gameBoard = document.getElementById('game-board')
 
 function main(currentTime) {
 	if (gameOver) {
-		if (confirm("You Lost! Press 'ok' to restart.")) {
+		if (confirm("You Lost! Your score was " + SCORE + ". Press 'ok' to restart.")) {
 			window.location = 'file:///Users/sophiasun/GitHub/Personal-Projects/Snake%20Game/main.html'
 		}
 		return
@@ -121,6 +122,7 @@ function updateFood() {
 	if (onSnake(food, false)) {
 		addSegment()
 		food = getRandomFoodPosition()
+		SCORE++
 	}
 }
 
