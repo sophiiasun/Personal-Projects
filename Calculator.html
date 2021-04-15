@@ -1,0 +1,117 @@
+<!--
+	* Create helper function to set and get display values
+	* Show alert when number is too big to display
+	* add onclick action for .
+	* add onclick action for %
+	* add onclick action for + - * /
+	* add onclick action for =
+	* disable ( and )
+-->
+
+<html>
+<head>
+<style>
+input.display {width:100%;}
+input {width:50px;}
+</style>
+<script type="text/javascript">
+	var operand1 = 0
+	var operator
+	function getDisplay() {
+		return document.getElementById("display").innerHTML
+	}
+
+	function setDisplay(value) {wanna
+		if (value.toString().length > 10)
+			alert("Number " + value + " is too big to display!")
+		else
+			document.getElementById("display").innerHTML = value
+	}
+
+	function updateDisplay(code) {
+		// Q1: when should 0 be kept?
+		// Q2: when should 0 be concatenated?
+		if (code >= 0 && code <= 9) {
+			if (getDisplay() == "0")
+				setDisplay(code)
+			else
+				setDisplay(getDisplay() + code)
+		} else if (code == ".") {
+			if (getDisplay().indexOf('.') < 0)
+				setDisplay(getDisplay() + code)
+		} else if (code == "AC") {
+			setDisplay("0")
+		} else if ("+-*/".indexOf(code) >=0) {
+			operand1 = Number(getDisplay())
+			operator = code
+			setDisplay("0")
+		} else if (code == "%") {
+			setDisplay(Number(getDisplay()) / 100)
+		} else if (code == "=") {
+			if (operator != "") {
+				var operand2 = Number(getDisplay())
+				var result
+				switch (operator) {
+					case '+':
+						result = operand1 + operand2
+						break;
+					case '-':
+						result = operand1 - operand2
+						break;
+					case '*':
+						result = operand1 * operand2
+						break;
+					case '/':
+						result = operand1 / operand2
+						break;
+				}
+				if (String(result).indexOf(".") >= 0)
+					result = Number(result.toPrecision(2))
+				setDisplay(result)
+				operator = ""
+			}
+		}
+	}
+</script>
+</head>
+<body>
+	<table>
+		<tr>
+			<td colspan="4">
+				<!-- input class="display" type=text readonly="no" -->
+				<div id="display" style="border:1px; border-style:solid; text-align:right;  padding:2px">0</div>
+			</td>
+		</tr>
+		<tr>
+			<td><input type=button value="(" disabled></td>
+			<td><input type=button value=")" disabled></td>
+			<td><input type=button value="%" onclick="updateDisplay('%')"></td>
+			<td><input type=button value="AC" onclick="updateDisplay('AC')"></td>
+		</tr>	
+		<tr>
+			<td><input type=button value="7" onclick="updateDisplay(7)"></td>
+			<td><input type=button value="8" onclick="updateDisplay(8)"></td>
+			<td><input type=button value="9" onclick="updateDisplay(9)"></td>
+			<td><input type=button value="/" onclick="updateDisplay('/')"></td>
+		</tr>
+		<tr>
+			<td><input type=button value="4" onclick="updateDisplay(4)"></td>
+			<td><input type=button value="5" onclick="updateDisplay(5)"></td>
+			<td><input type=button value="6" onclick="updateDisplay(6)"></td>
+			<td><input type=button value="*" onclick="updateDisplay('*')"></td>
+		</tr>
+		<tr>
+			<td><input type=button value="1" onclick="updateDisplay(1)"></td>
+			<td><input type=button value="2" onclick="updateDisplay(2)"></td>
+			<td><input type=button value="3" onclick="updateDisplay(3)"></td>
+			<td><input type=button value="-" onclick="updateDisplay('-')"></td>
+		</tr>
+		<tr>
+			<td><input type=button value="0" onclick="updateDisplay(0)"></td>
+			<td><input type=button value="." onclick="updateDisplay('.')"></td>
+			<td><input type=button value="=" onclick="updateDisplay('=')"></td>
+			<td><input type=button value="+" onclick="updateDisplay('+')"></td>
+		</tr>
+	</table>
+</body>
+</html>
