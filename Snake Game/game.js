@@ -8,6 +8,7 @@ const SNAKE_SPEED = 5 // two moves per second
 const gameBoard = document.getElementById('game-board')
 
 function main(currentTime) {
+	alert("game start")
 	if (gameOver) {
 		if (confirm("You Lost! Your score was " + SCORE + ". Press 'ok' to restart.")) {
 			window.location = 'file:///Users/sophiasun/GitHub/Personal-Projects/Snake%20Game/main.html'
