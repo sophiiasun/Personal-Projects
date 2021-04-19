@@ -6,9 +6,11 @@ const ALL_DIRECTION = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1,
 const STRAIGHT_DIRECTION = [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
 var gameboard = []
-var bombsFound = 0
+var minesFound = 0
+var tilesFound = 0
 
 main()
+window.addEventListener("contextmenu", e => e.preventDefault());
 
 function main(currentTime) {
 	createGrid()
@@ -70,7 +72,7 @@ function createBombs() {
 		col = Math.floor(Math.random()*30)
 		if (gameboard[row][col].type === 0) {
 			gameboard[row][col].type = -1
-			gameboard[row][col].buttonElement.innerHTML = "X"
+			// gameboard[row][col].buttonElement.innerHTML = "X"
 			MINE_POSITIONS.push([row, col])
 			counter++
 		}
@@ -87,7 +89,7 @@ function fillNumbers() {
 			if (validPosition(row, col) && gameboard[row][col].type !== -1) {
 				var count = gameboard[row][col].type + 1
 				gameboard[row][col].type = count
-				gameboard[row][col].buttonElement.innerHTML = gameboard[row][col].type
+				// gameboard[row][col].buttonElement.innerHTML = gameboard[row][col].type
 			}
 		})
 	})
@@ -99,6 +101,11 @@ function checkClick(tile) {
 	if (tile.type === 0) {
 		revealTile(tile)
 		revealBlanks(tile) 
+	} else if (tile.type > 0) 
+		revealTile(tile)
+	else {
+		revealMines(tile)
+		displayLose(tile)
 	}
 }
 
@@ -112,8 +119,8 @@ function revealTile(tile) {
 	boardElement.replaceChild(newTile, button)
 	tile.status = "tile"
 	if (gameboard[tile.r][tile.c].type > 0)
-		newTile.innerHTML = gameboard[tile.r][tile.c].type
-	
+		newTile.innerHTML = gameboard[tile.r][tile.c].type	
+	tilesFound++
 }
 
 function revealBlanks(tile) {
@@ -137,4 +144,43 @@ function revealBlanks(tile) {
 function markTile(tile) {
 	const button = tile.buttonElement
 	button.innerHTML = "?"
+	if (tile.type == -1)
+		minesFound++
 }
+
+// CHECK WIN OR LOSE
+
+function displayLose(tile) {
+	setTimeout(function(){ 
+		if (confirm("You Lost! Press 'OK' or refresh the page to restart.")) {
+			window.location = 'file:///Users/sophiasun/Documents/GitHub/Personal-Projects/Minesweeper/Minesweeper3.html'
+		}
+	}, 500);
+}
+
+function displayWin() {
+	setTimeout(function(){ 
+		if (confirm("You Won! Press 'OK' or refresh the page to restart.")) {
+			window.location = 'file:///Users/sophiasun/Documents/GitHub/Personal-Projects/Minesweeper/Minesweeper3.html'
+		}
+	}, 500);
+}
+
+function checkWin() {
+	if (minesFound == TOTAL_MINES_COUNT && minesFound + tilesFound == 900)
+		displayWin()
+}
+
+// the mine that you clicked turns red
+// all other mines display bomb
+// flagged mines remain as is
+
+function revealMines(tile) {
+	MINE_POSITIONS.forEach(pos => {
+		gameboard[pos[0]][pos[1]].buttonElement.innerHTML = 'X'
+		gameboard[pos[0]][pos[1]].buttonElement.style.background = "#ffa5a1"
+	})
+	tile.buttonElement.style.background = "red"
+
+}
+
