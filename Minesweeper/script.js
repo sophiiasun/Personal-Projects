@@ -1,5 +1,5 @@
 const GRID_SIZE = 30
-const TOTAL_MINES_COUNT = 90
+const TOTAL_MINES_COUNT = 120
 const boardElement = document.getElementById("game-board")
 const MINE_POSITIONS = []
 const ALL_DIRECTION = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
@@ -45,7 +45,6 @@ function createGrid() {
     		const buttonElement = document.createElement("button")
     		var type = 0, clickable = true, status = "button"
     		buttonElement.classList.add('button')
-    		// buttonElement.dataset.status = 'hidden'
     		buttonElement.style.border = "outset"
     		buttonElement.id = r+"-"+c
     		buttonElement.gridRowStart = r
@@ -112,6 +111,9 @@ function revealTile(tile) {
 	newTile.classList.add('tile')
 	boardElement.replaceChild(newTile, button)
 	tile.status = "tile"
+	if (gameboard[tile.r][tile.c].type > 0)
+		newTile.innerHTML = gameboard[tile.r][tile.c].type
+	
 }
 
 function revealBlanks(tile) {
@@ -123,11 +125,9 @@ function revealBlanks(tile) {
 			const row = pos[0] + dir[0]
 			const col = pos[1] + dir[1]
 			if (validPosition(row, col) && gameboard[row][col].status === "button") {
-				if (gameboard[row][col].type === 0) {
-					queue.push([row, col])
-					revealTile(gameboard[row][col])
-				}
-			} else if (gameboard[])
+				revealTile(gameboard[row][col])
+				if (gameboard[row][col].type === 0) queue.push([row, col])
+			}
 		})
 	}
 }
