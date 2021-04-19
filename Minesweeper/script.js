@@ -1,9 +1,9 @@
 const GRID_SIZE = 30
-const TOTAL_MINES_COUNT = 60
+const TOTAL_MINES_COUNT = 90
 const boardElement = document.getElementById("game-board")
 const MINE_POSITIONS = []
-
-var tmpCounter= 0 
+const ALL_DIRECTION = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+const STRAIGHT_DIRECTION = [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
 var gameboard = []
 var bombsFound = 0
@@ -13,6 +13,7 @@ main()
 function main(currentTime) {
 	createGrid()
 	createBombs()
+	fillNumbers()
 }
 
 // CLICKS
@@ -24,7 +25,7 @@ gameboard.forEach(row => {
 				return
 			switch (event.which) {
 				case 1:
-					revealTile(tile)
+					checkClick(tile)
 					break
 				case 3: 
 					markTile(tile)
@@ -42,26 +43,22 @@ function createGrid() {
     	let row = []
     	for (var c = 0; c < GRID_SIZE; c++) {
     		const buttonElement = document.createElement("button")
-    		const type = 0, clickable = true
+    		var type = 0, clickable = true, status = "button"
     		buttonElement.classList.add('button')
     		// buttonElement.dataset.status = 'hidden'
     		buttonElement.style.border = "outset"
     		buttonElement.id = r+"-"+c
     		buttonElement.gridRowStart = r
     		buttonElement.gridColumnStart = c
-    		const tile = {
-    			buttonElement, r, c, type, clickable,
-    			get status() {
-    				return this.buttonElement.dataset.status
-    			},
-    			set status (value) {
-    				this.buttonElement.dataset.status = value
-    			}
-    		} 
+    		const tile = { buttonElement, r, c, type, clickable, status } 
     		row.push(tile)
     	}
     	gameboard.push(row)
     }
+}
+
+function validPosition(row, col) {
+	return row >= 0 && col >= 0 && row < GRID_SIZE && col < GRID_SIZE
 }
 
 // CREATING BOMBS
@@ -74,22 +71,65 @@ function createBombs() {
 		col = Math.floor(Math.random()*30)
 		if (gameboard[row][col].type === 0) {
 			gameboard[row][col].type = -1
+			gameboard[row][col].buttonElement.innerHTML = "X"
+			MINE_POSITIONS.push([row, col])
 			counter++
 		}
 	}
 }
 
+// FILL NUMBERS
+
+function fillNumbers() {
+	MINE_POSITIONS.forEach(pos => { // position
+		ALL_DIRECTION.forEach(dir => {
+			const row = pos[0] + dir[0]
+			const col = pos[1] + dir[1]
+			if (validPosition(row, col) && gameboard[row][col].type !== -1) {
+				var count = gameboard[row][col].type + 1
+				gameboard[row][col].type = count
+				gameboard[row][col].buttonElement.innerHTML = gameboard[row][col].type
+			}
+		})
+	})
+}
+
 // REVEAL TILE (left click)
+
+function checkClick(tile) {
+	if (tile.type === 0) {
+		revealTile(tile)
+		revealBlanks(tile) 
+	}
+}
 
 function revealTile(tile) {
 	const button = tile.buttonElement
 	tile.clickable = false
-	alert(button.id)
 	const newTile = document.createElement('div')
 	newTile.gridRowStart = tile.r
 	newTile.gridColumnStart = tile.c
 	newTile.classList.add('tile')
 	boardElement.replaceChild(newTile, button)
+	tile.status = "tile"
+}
+
+function revealBlanks(tile) {
+	let queue = []
+	queue.push([tile.r, tile.c])
+	while (queue.length !== 0) {
+		let pos = queue[0]; queue.shift()
+		ALL_DIRECTION.forEach(dir => {
+			const row = pos[0] + dir[0]
+			const col = pos[1] + dir[1]
+			if (validPosition(row, col) && gameboard[row][col].status === "button") {
+				if (gameboard[row][col].type === 0) {
+					queue.push([row, col])
+					revealTile(gameboard[row][col])
+				}
+			} else if (gameboard[])
+		})
+	}
 }
 
 // MARK TILE (right click)
