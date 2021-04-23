@@ -89,7 +89,6 @@ function fillNumbers() {
 			if (validPosition(row, col) && gameboard[row][col].type !== -1) {
 				var count = gameboard[row][col].type + 1
 				gameboard[row][col].type = count
-				// gameboard[row][col].buttonElement.innerHTML = gameboard[row][col].type
 			}
 		})
 	})
@@ -171,9 +170,6 @@ function checkWin() {
 		displayWin()
 }
 
-// the mine that you clicked turns red
-// all other mines display bomb
-// flagged mines remain as is
 
 function revealMines(tile) {
 	MINE_POSITIONS.forEach(pos => {
@@ -181,6 +177,5 @@ function revealMines(tile) {
 		gameboard[pos[0]][pos[1]].buttonElement.style.background = "#ffa5a1"
 	})
 	tile.buttonElement.style.background = "red"
-
 }
 
